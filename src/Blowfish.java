@@ -390,15 +390,35 @@ public class Blowfish {
         for(int i = 0; i < blockNumber; i++) {
             int lblock;
             int rblock;
-            lblock = (((int)(text[i]) & 0xFF) << 24)
-                    | ((((int)(text[i + 1]) & 0xFF) << 8) >> 24)
-                    | ((((int)(text[i + 2]) & 0xFF) << 8 ) >> 16)
-                    | text[i + 3];
-            rblock = (((int)(text[i + 4]) & 0xFF) << 24)
-                    | ((((int)(text[i + 5]) & 0xFF) << 8) >> 24)
-                    | ((((int)(text[i + 6]) & 0xFF) << 8 ) >> 16)
-                    | text[i + 7];
+            // pack bytes into int value for left block
+            lblock = ((0xFF & text[i]) << 24)
+                    | ((0xFF & text[i + 1]) << 16)
+                    | ((0xFF & text[i + 2]) << 8)
+                    | (0xFF & text[i + 3]);
+            // pack bytes into int value for right block
+            rblock = ((0xFF & text[i + 4]) << 24)
+                    | ((0xFF & text[i + 5]) << 16)
+                    | ((0xFF & text[i + 6]) << 8)
+                    | (0xFF & text[i + 7]);
+            // encrypt using two blocks
             int[] temp = encrypt(lblock, rblock);
+
+
+
+//            for(int j = i; j < i + 8; j++) {
+//                System.out.print("byte[" + j + "]:" + Integer.toBinaryString(Byte.toUnsignedInt(text[j])) + " ");
+//            }
+//            System.out.println();
+////            for(int j = i; j < i + 8; j++) {
+////                int temporary_n = ((int)(text[j]) & 0xFF);
+////                System.out.print("int of byte[" + j + "]:" + Integer.toBinaryString(temporary_n) + " ");
+////            }
+////            System.out.println();
+//
+//            System.out.print(Integer.toBinaryString(lblock) + " " + Integer.toBinaryString(rblock));
+//
+//            System.out.println();
+//            System.out.println();
 
 //            System.out.println(Integer.toBinaryString(temp[0]) + " ");
 //            System.out.println(Integer.toBinaryString(temp[1]) + " ");
@@ -429,14 +449,14 @@ public class Blowfish {
         int lblock;
         int rblock;
         for(int i = 0; i < blockNumber; i++) {
-            lblock = (((int)(text[i]) & 0xFF) << 24)
-                    | ((((int)(text[i + 1]) & 0xFF) << 8) >> 24)
-                    | ((((int)(text[i + 2]) & 0xFF) << 8 ) >> 16)
-                    | text[i + 3];
-            rblock = (((int)(text[i + 4]) & 0xFF) << 24)
-                    | ((((int)(text[i + 5]) & 0xFF) << 8) >> 24)
-                    | ((((int)(text[i + 6]) & 0xFF) << 8 ) >> 16)
-                    | text[i + 7];
+            lblock =  ((0xFF & text[i]) << 24)
+                    | ((0xFF & text[i + 1]) << 16)
+                    | ((0xFF & text[i + 2]) << 8)
+                    | (0xFF & text[i + 3]);
+            rblock = ((0xFF & text[i + 4]) << 24)
+                    | ((0xFF & text[i + 5]) << 16)
+                    | ((0xFF & text[i + 6]) << 8)
+                    | (0xFF & text[i + 7]);
             int[] temp = decrypt(lblock, rblock);
             byte[] bytes = setBytes(temp[0]);
             output[i] = bytes[0];
@@ -474,12 +494,11 @@ public class Blowfish {
     }
 
     private static byte[] setBytes(int block) {
-        byte[] output = new byte[4];
-        output[0] = (byte)(block >> 24);
-        output[1] = (byte)((block << 8 ) >> 24);
-        output[2] = (byte)((block << 8 ) >> 16);
-        output[3] = (byte)(block & 0xFF);
-        return output;
+        return new byte[]
+                {(byte)(block >>> 24),
+                (byte)(block >>> 16),
+                (byte)(block >>> 8),
+                (byte)block};
     }
 
 //    public static byte[] readImage(String inputFile) throws IOException {

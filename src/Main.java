@@ -12,29 +12,52 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        System.out.println(Integer.toBinaryString(32));
-        System.out.println("Зашифровать [1]");
-        System.out.println("Расшифровать [2]");
-        System.out.println("Выход [Друой символ]");
+        System.out.println("Encryption [1]");
+        System.out.println("Decryption [2]");
+        System.out.println("Quit [Any other digit]");
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String s = br.readLine();
 
         char[] k;
-        int i = Integer.parseInt(s);
 
-        if (i == 1) {
+        // This is an example how to encrypt the image file
+        if (s.equals("1")) {
+            System.out.println("Enter source filename, default 'source.jpg':");
+            String inputFile = br.readLine();
             k = keyMenu();
-            String inputFile = "source.jpg";
+            if (inputFile.equals("")) {
+                inputFile = "source.jpg";
+            }
             byte[] text = Blowfish.readBytes(inputFile);
             byte[] c = Blowfish.encipher(k, text);
-            Blowfish.writeBytes("cipher.txt", c);
-        } else if (i == 2) {
-            String keyFile = "key.txt";
+            System.out.println("Enter output filename, default 'cipher.txt':");
+            String outputFile = br.readLine();
+            if (outputFile.equals("")) {
+                outputFile = "cipher.txt";
+            }
+            Blowfish.writeBytes(outputFile, c);
+            System.out.println("Cipher text stored to '" + outputFile + "'");
+        // Here we decrypt encrypted image
+        } else if (s.equals("2")) {
+            System.out.println("Enter the key filename, default 'key.txt':");
+            String keyFile = br.readLine();
+            if (keyFile.equals("")) {
+                keyFile = "key.txt";
+            }
             k = Blowfish.readKeyFromFile(keyFile);
-            String inputFile = "cipher.txt";
+            System.out.println("Enter cipher text path, default 'cipher.txt'");
+            String inputFile = br.readLine();
+            if (inputFile.equals("")) {
+                inputFile = "cipher.txt";
+            }
+            System.out.println("Enter output filename, default 'output.jpg'");
+            String outputFile = br.readLine();
+            if (outputFile.equals("")) {
+                outputFile = "output.jpg";
+            }
             byte[] text = Blowfish.readBytes(inputFile);
             byte[] c = Blowfish.decipher(k, text);
-            Blowfish.writeBytes("output.jpg", c);
+            Blowfish.writeBytes(outputFile, c);
         } else {
             return;
         }
@@ -43,31 +66,18 @@ public class Main {
 
     private static char[] keyMenu() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        System.out.println("Случайный ключ [1]");
-        System.out.println("Считать из файла [Другой символ]");
+        System.out.println("Read key from file, default 'key.txt' [1]");
+        System.out.println("Random key [other digit]");
         String s = br.readLine();
-        int i = Integer.parseInt(s);
         char[] k;
-        if (i == 1) {
-            k = Blowfish.generateKey();
-            Blowfish.writeToFile(k, "key.txt");
-        } else {
+        if (s.equals("1") || s.equals("")) {
             String keyFile = "key.txt";
             k = Blowfish.readKeyFromFile(keyFile);
+        } else {
+            k = Blowfish.generateKey();
+            Blowfish.writeToFile(k, "key.txt");
         }
         return k;
     }
-
-//    private static byte[] readBytes(String fileName) throws IOException {
-//
-//    }
-//
-//    private static byte[] bytesToChar(char[] chars) {
-//
-//        for(char c : chars) {
-//
-//        }
-//
-//    }
 
 }
